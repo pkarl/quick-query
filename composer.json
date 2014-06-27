@@ -1,0 +1,7 @@
+{
+    "name": "pkarl/quick-query",
+    "description": "Quick-Query is a WordPress plugin that provides a jQuery-like interface for querying posts and other information.",
+    "require": {
+        "php": ">=5.3.0"
+    }
+}
