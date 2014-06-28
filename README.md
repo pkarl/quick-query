@@ -44,5 +44,3 @@ I'll be working on this (along with anyone who enjoys the idea of mitigating the
 I'm just going to document what I went through to get a local test env up in OSX.
 
 I'm following this first: https://github.com/Homebrew/homebrew-php to get PHP + Pear + PHPUnit
-
-...then this: http://michaelheap.com/installing-phpunit-under-php-5-4-from-homebrew/
