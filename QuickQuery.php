@@ -16,7 +16,7 @@ Class QQuery {
 		doesn't blow the other away */
 
 	// default WP_Query config
-	// private $query_assoc = array();
+	private $query_assoc = array();
 
 	// private $default_assoc = array(
 	// 	'post_type' => 'any',
@@ -33,32 +33,37 @@ Class QQuery {
 	// 	$this->reset();
 	// }
 
-	// public function get( $post_id_or_slug ) {
+	/**
+	 * Get one post object using a unique identifier
+	 * @param  string/int 	$post_id_or_slug an int post ID or string post_name
+	 * @return WP_Post
+	 */
+	public static function get( $post_id_or_slug ) {
 
-	// 	if(is_string( $post_id_or_slug )) {
-	// 		global $wpdb;
-	// 		$post_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_name = %s", $post_id_or_slug ));
-	// 	} else {
-	// 		$post_id = $post_id_or_slug;
-	// 	}
+		if(is_string( $post_id_or_slug )) {
+			global $wpdb;
+			$post_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_name = %s", $post_id_or_slug ));
+		} else {
+			$post_id = $post_id_or_slug;
+		}
 
-	// 	// get_post will only return a WP_Post object OR null
-	// 	$post = get_post( $post_id );
+		// get_post will only return a WP_Post object OR null
+		$post = get_post( $post_id );
 
-	// 	if($post === null) {
-	// 		return false; // how should we handle 'no records found'?
-	// 	}
+		if(! ($post instanceof WP_Post)) {
+			return false; // how should we handle 'no records found'? throw a warning? - pk
+		}
 
-	// 	$posts = $this->acf_filter( [$post] );
-	// 	$posts = $this->meta_filter( [$post] );
-	// 	$posts = apply_filters('wp_ups_query_go_posts', $posts);
-	// 	$post = $posts[0];
+		// $posts = $this->acf_filter( [$post] );
+		// $posts = $this->meta_filter( [$post] );
+		// $posts = apply_filters('wp_ups_query_go_posts', $posts);
+		// $post = $posts[0];
 
-	// 	$this->comments_params['post_id'] = $post->ID;
-	// 	$post->comments = get_comments( $this->comments_params );
+		// $this->comments_params['post_id'] = $post->ID;
+		// $post->comments = get_comments( $this->comments_params );
 
-	// 	return $post;
-	// }
+		return $post;
+	}
 
 	// public function id( $post_id ) {
 	// 	if(is_array($post_id) || strpos($post_id, ',')) {
