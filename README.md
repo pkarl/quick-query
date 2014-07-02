@@ -1,5 +1,7 @@
 # Quick Query
 
+[![Build Status](https://travis-ci.org/pkarl/quick-query.svg?branch=master)](https://travis-ci.org/pkarl/quick-query)
+
 Quick Query is an interface for fetching data from WordPress that's intuitive and pleasant to use. It uses a jQuery-like syntax to chain together simple pieces of information and get you the right information in return.
 
 ## How it works
