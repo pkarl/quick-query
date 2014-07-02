@@ -58,7 +58,7 @@ class WP_QQ_Results extends WP_UnitTestCase {
 		$post_ids = $this->factory->post->create_many( $howmany );
 		shuffle($post_ids);
 
-		$working_ids = array_slice( $post_ids, rand(0, $howmany), rand(2, $howmany) );
+		$working_ids = array_slice( $post_ids, 5 );
 
 		$qq = new QQuery();
 
@@ -90,7 +90,7 @@ class WP_QQ_Results extends WP_UnitTestCase {
 		$post_ids = $this->factory->post->create_many( $howmany );
 
 		shuffle($post_ids);
-		$working_ids = array_slice( $post_ids, rand(0, $howmany), rand(2, $howmany) );
+		$working_ids = array_slice( $post_ids, 5 );
 
 		$qq = new QQuery();
 
