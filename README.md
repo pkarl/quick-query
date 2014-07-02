@@ -47,6 +47,6 @@ I recommend using 10up's [VVV](https://github.com/Varying-Vagrant-Vagrants/VVV) 
 
 From there, what I've done is cloned this repo, added it as a sync'd folder in VVV's Vagrant file, and then symlinked it to my wordpress repos.
 
-> To sync any additional folder, add `config.vm.synced_folder "/path/to/your/folder/", "/srv/vagrant/mirror/"` so you can edit in your OS and interact with it in your VM
+> To sync any additional folder, add `config.vm.synced_folder "/path/to/your/folder/", "/srv/vagrant/mirror/"` to your Vagrantfile so you can edit code in your OS and run tests VM effortlessly
 
 To run the tests, I `vagrant ssh` into the vbox, navigate to the plugin directory, and run `phpunit` (or, more frequently, `phpunit --debug`)
