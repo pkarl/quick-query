@@ -40,12 +40,39 @@ Class QQuery {
 	 * @param  string $warning_code a string index that corresponds to warning messages
 	 *                              in $qq_warnings
 	 */
-	private static function qq_warn( $warning_code ) {
+	private static function warn( $warning_code ) {
 		$qq_warnings = array(
-			'EMPTY_SET' => 'QQuery has received data that will return an empty set'
+			'EMPTY_SET' => 'QQuery has received data that will return an empty set',
+			'ARR_CONVERSION' => 'QQuery is attempting to convert an unusual object to an array',
+			'EMPTY_ARR' => 'QQuery has found or generated an empty array'
 		);
 
 		trigger_error( $qq_warnings[$warning_code], E_USER_WARNING);
+	}
+
+	/**
+	 * to_array accepts a reference to an array or string and converts to an array (or does nothing). This
+	 * exists because it's a slice of logic that happens all the dang time.
+	 *
+	 * @param  array|string $array_or_string
+	 */
+	private function to_array( &$array_or_string ) {
+
+		if( is_string( $array_or_string ) && strpos($array_or_string, ',') ) {
+			$array_or_string = explode(',', $array_or_string);
+		} elseif ( is_numeric($array_or_string) || is_string($array_or_string) ) {
+			$array_or_string = array($array_or_string);
+		} elseif ( is_array($array_or_string) ) {
+			// nuttin'
+		} else {
+			$this->warn('ARR_CONVERSION');
+			return;
+		}
+
+ 		if( count($array_or_string) === 0 ) {
+ 			$this->warn('EMPTY_ARR');
+ 		}
+
 	}
 
 	/**
@@ -84,32 +111,38 @@ Class QQuery {
 	 * the id() method emulates the behavior of WP_Query by providing an interface for
 	 * users to feed in one or more IDs for a post__in query; just uses 'p=[id]' if single ID
 	 *
-	 * @param  int|array|string $post_id_or_arr
+	 * @param  int|array|string $ids
 	 * @return current QQuery instance
 	 */
-	public function id( $post_id_or_arr ) {
+	public function id( $ids ) {
 
-		if(!$post_id_or_arr) {
-			$this->qq_warn('EMPTY_SET');
+		if(!$ids) {
+			$this->warn('EMPTY_SET');
 		}
 
-		if(is_array($post_id_or_arr) || strpos($post_id_or_arr, ',')) {
-			return $this->in($post_id_or_arr);
+		$this->to_array( $ids );
+
+		if(count($ids) > 1) {
+			return $this->in($ids);
+		} else {
+			$this->query_assoc['p'] = $ids[0];
 		}
-		$this->query_assoc['p'] = $post_id_or_arr;
 		return $this;
 	}
 
 	/**
 	 * in adds a filter to WP_Query for post__in
-	 * @param  string|array $array_of_ids array may be a comma-delimited string or an PHP array
+	 * @param  string|array $ids array may be a comma-delimited string or an PHP array
 	 * @return current QQuery instance
 	 */
-	public function in( $array_of_ids ) {
-		if(is_string($array_of_ids)) {
-			$array_of_ids = explode(',', $array_of_ids);
-		}
-		$this->query_assoc['post__in'] = $array_of_ids;
+	public function in( $ids ) {
+		// if(is_string($array_of_ids)) {
+		// 	$array_of_ids = explode(',', $array_of_ids);
+		// }
+
+		$this->to_array( $ids );
+		$this->query_assoc['post__in'] = $ids;
+
 		return $this;
 	}
 
@@ -125,22 +158,41 @@ Class QQuery {
 		return $this;
 	}
 
-	// public function exclude_ids($exclude_ids){
-	// 	if (is_string($exclude_ids) || is_numeric($exclude_ids)){
-	// 		$arr = array($exclude_ids);
-	// 		$exclude_ids = $arr;
-	// 	}
-	// 	$this->query_assoc['post__not_in'] = $exclude_ids;
-	// 	return $this;
-	// }
+	/**
+	 * exclude posts from a set of provided IDs
+	 * @param  string|array $ids array may be a comma-delimited string or an PHP array
+	 * @return current QQuery instance
+	 */
+	public function exclude( $ids ){
+		// if (is_string($exclude_ids) || is_numeric($exclude_ids)){
+			// $arr = array($exclude_ids);
+			$this->to_array( $ids );
+		// }
+		$this->query_assoc['post__not_in'] = $ids;
+		return $this;
+	}
 
-	// public function ppp( $posts_per_page ) {
-	// 	if($posts_per_page == 0) {
-	// 		trigger_error('UPS-Query: posts per page cannot be 0, reverting to 10', E_WARNING);
-	// 	}
-	// 	$this->query_assoc['posts_per_page'] = $posts_per_page;
-	// 	return $this;
-	// }
+	/**
+	 * all is a shortcut for ppp(-1), which attempts to return ALL posts requested,
+	 * without regard for pagniation
+	 * @return current QQuery instance
+	 */
+	public function all() {
+		return $this->ppp(-1);
+	}
+
+	/**
+	 * set or limit the posts per page. Setting this to 0 will result in a warning
+	 * @param  int $posts_per_page the number of posts per page to set
+	 * @return current QQuery instance
+	 */
+	public function ppp( $posts_per_page ) {
+		if($posts_per_page == 0) {
+			$this->warn('EMPTY_SET');
+		}
+		$this->query_assoc['posts_per_page'] = $posts_per_page;
+		return $this;
+	}
 
 	// public function page($page_number) { // which page are we on..?
 	// 	if(isset($this->query_assoc['offset'])){
@@ -474,6 +526,8 @@ Class QQuery {
 		// 	// $post->comments = get_comments( $post->ID );
 		// 	return $post;
 		// }
+
+		// print_r($query->request . "\n\n");
 
 		$this->reset();
 		return $query->posts;

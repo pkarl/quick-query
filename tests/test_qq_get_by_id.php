@@ -53,26 +53,22 @@ class WP_QQ_Results extends WP_UnitTestCase {
 
 	function test_get_post_in_array() {
 
-		$howmany = 10; // default page size
+		$howmany = 20; // larger than default page size
 
 		$post_ids = $this->factory->post->create_many( $howmany );
+		shuffle($post_ids);
 
-		$working_ids = array_slice( $post_ids, rand(0, $howmany), rand(1, $howmany) );
-
-		// don't let $working_ids be empty
-		if(!$working_ids) {
-			$working_ids = $post_ids;
-		}
+		$working_ids = array_slice( $post_ids, rand(0, $howmany), rand(2, $howmany) );
 
 		$qq = new QQuery();
 
 		// using array-based set of IDs
-		$posts1 = $qq->id( $working_ids )->go();
+		$posts1 = $qq->id( $working_ids )->all()->go();
 
 		// make sure we get the same number of posts as we requested
 		$this->assertEquals( count($posts1), count($working_ids) );
 
-		$posts2 = $qq->id( implode( ',', $working_ids ) )->go();
+		$posts2 = $qq->id( implode( ',', $working_ids ) )->all()->go();
 
 		// make sure a comma-delimited set of ids is returning posts properly
 		$this->assertEquals( count($posts2), count($working_ids) );
@@ -85,6 +81,25 @@ class WP_QQ_Results extends WP_UnitTestCase {
 		}
 
 		$this->assertTrue( $warning, 'a warning has been caught' );
+	}
+
+	function test_exclude_ids() {
+
+		$howmany = 20;
+
+		$post_ids = $this->factory->post->create_many( $howmany );
+
+		shuffle($post_ids);
+		$working_ids = array_slice( $post_ids, rand(0, $howmany), rand(2, $howmany) );
+
+		$qq = new QQuery();
+
+		$posts1 = $qq->all()->go();
+
+		$posts2 = $qq->all()->exclude( $working_ids )->go();
+
+		$this->assertNotEquals( $posts1, $posts2);
+
 	}
 
 }
