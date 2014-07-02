@@ -3,7 +3,7 @@
 Plugin Name: Quick Query
 Plugin URI: https://github.com/pkarl/quick-query
 Description: This plugin provides a querying interface for posts, and returns homogenous objects
-Version: 0.0.1
+Version: 0.0.2
 Author: Pete Karl II
 Author URI: https://github.com/pkarl/quick-query
 License: MIT
@@ -18,10 +18,10 @@ Class QQuery {
 	// default WP_Query config
 	private $query_assoc = array();
 
-	// private $default_assoc = array(
-	// 	'post_type' => 'any',
-	// 	'post_status' => 'publish'
-	// );
+	private $default_assoc = array(
+		'post_type' => 'any',
+		'post_status' => 'publish'
+	);
 
 	// private $meta_fields = array();
 
@@ -29,9 +29,24 @@ Class QQuery {
 	// 		'status' => 'approve',
 	// 	);
 
-	// public function __construct() {
-	// 	$this->reset();
-	// }
+	public function __construct() {
+		$this->reset();
+	}
+
+	/**
+	 * qq_warn is an interface to PHP's trigger_error function; it will be used to
+	 * provide users will debugging information about how QQ is functioning
+	 *
+	 * @param  string $warning_code a string index that corresponds to warning messages
+	 *                              in $qq_warnings
+	 */
+	private static function qq_warn( $warning_code ) {
+		$qq_warnings = array(
+			'EMPTY_SET' => 'QQuery has received data that will return an empty set'
+		);
+
+		trigger_error( $qq_warnings[$warning_code], E_USER_WARNING);
+	}
 
 	/**
 	 * Get one post object using a unique identifier
@@ -65,27 +80,50 @@ Class QQuery {
 		return $post;
 	}
 
-	// public function id( $post_id ) {
-	// 	if(is_array($post_id) || strpos($post_id, ',')) {
-	// 		return $this->post_in($post_id);
-	// 	}
-	// 	$this->query_assoc['p'] = $post_id;
-	// 	return $this;
-	// }
+	/**
+	 * the id() method emulates the behavior of WP_Query by providing an interface for
+	 * users to feed in one or more IDs for a post__in query; just uses 'p=[id]' if single ID
+	 *
+	 * @param  int|array|string $post_id_or_arr
+	 * @return current QQuery instance
+	 */
+	public function id( $post_id_or_arr ) {
 
-	// public function post_in( $array_of_ids ) {
-	// 	if(is_string($array_of_ids)) {
-	// 		$array_of_ids = explode(',', $array_of_ids);
-	// 	}
-	// 	$this->query_assoc['post__in'] = $array_of_ids;
-	// 	return $this;
-	// }
+		if(!$post_id_or_arr) {
+			$this->qq_warn('EMPTY_SET');
+		}
 
-	// public function sort($orderby = 'date', $sort = 'DESC'){
-	// 	$this->query_assoc['orderby'] = $orderby;
-	// 	$this->query_assoc['order'] = $sort;
-	// 	return $this;
-	// }
+		if(is_array($post_id_or_arr) || strpos($post_id_or_arr, ',')) {
+			return $this->in($post_id_or_arr);
+		}
+		$this->query_assoc['p'] = $post_id_or_arr;
+		return $this;
+	}
+
+	/**
+	 * in adds a filter to WP_Query for post__in
+	 * @param  string|array $array_of_ids array may be a comma-delimited string or an PHP array
+	 * @return current QQuery instance
+	 */
+	public function in( $array_of_ids ) {
+		if(is_string($array_of_ids)) {
+			$array_of_ids = explode(',', $array_of_ids);
+		}
+		$this->query_assoc['post__in'] = $array_of_ids;
+		return $this;
+	}
+
+	/**
+	 * sort accepts an orderby value for WP_Query
+	 * @param  string $orderby Sort retrieved posts by parameter. Defaults to 'date'. One or more options can be passed
+	 * @param  string $sort    Designates the ascending or descending order of the 'orderby' parameter. Defaults to 'DESC'
+	 * @return current QQuery instance
+	 */
+	public function sort($orderby = 'date', $sort = 'DESC'){
+		$this->query_assoc['orderby'] = $orderby;
+		$this->query_assoc['order'] = $sort;
+		return $this;
+	}
 
 	// public function exclude_ids($exclude_ids){
 	// 	if (is_string($exclude_ids) || is_numeric($exclude_ids)){
@@ -402,10 +440,11 @@ Class QQuery {
 	// 	return $this;
 	// }
 
-	// public function reset() {
-	// 	$this->query_assoc = $this->default_assoc;
-	// 	$this->meta_fields = array();
-	// }
+	public function reset() {
+		wp_reset_query();
+		$this->query_assoc = $this->default_assoc;
+		// $this->meta_fields = array();
+	}
 
 	// public function children($type='any') {
 	// 	$this->child_type = $type;
@@ -423,21 +462,21 @@ Class QQuery {
 
 	// /** RUN THE QUERY */
 
-	// public function go() {
+	public function go() {
 
-	// 	$query = new WP_Query($this->query_assoc);
-	// 	$posts = $this->acf_filter($query->posts);
-	// 	$posts = $this->meta_filter($posts);
-	// 	$posts = apply_filters('wp_ups_query_go_posts', $posts);
+		$query = new WP_Query($this->query_assoc);
+		// $posts = $this->acf_filter($query->posts);
+		// $posts = $this->meta_filter($posts);
+		// $posts = apply_filters('wp_ups_query_go_posts', $posts);
 
-	// 	// if(count($posts) == 1) {
-	// 	// 	$post = $posts[0];
-	// 	// 	// $post->comments = get_comments( $post->ID );
-	// 	// 	return $post;
-	// 	// }
+		// if(count($posts) == 1) {
+		// 	$post = $posts[0];
+		// 	// $post->comments = get_comments( $post->ID );
+		// 	return $post;
+		// }
 
-	// 	$this->reset();
-	// 	return $posts;
-	// }
+		$this->reset();
+		return $query->posts;
+	}
 
 }
