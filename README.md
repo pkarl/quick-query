@@ -43,6 +43,10 @@ I'll be working on this (along with anyone who enjoys the idea of mitigating the
 
 # Running Tests
 
-I'm just going to document what I went through to get a local test env up in OSX.
+I recommend using 10up's [VVV](https://github.com/Varying-Vagrant-Vagrants/VVV) to set up a wordpress environment.
 
-I'm following this first: https://github.com/Homebrew/homebrew-php to get PHP + Pear + PHPUnit
+From there, what I've done is cloned this repo, added it as a sync'd folder in VVV's Vagrant file, and then symlinked it to my wordpress repos.
+
+> To sync any additional folder, add `config.vm.synced_folder "/path/to/your/folder/", "/srv/vagrant/mirror/"` so you can edit in your OS and interact with it in your VM
+
+To run the tests, I `vagrant ssh` into the vbox, navigate to the plugin directory, and run `phpunit` (or, more frequently, `phpunit --debug`)
