@@ -60,8 +60,9 @@ Class QQuery {
 
 		if( is_string( $array_or_string ) && strpos($array_or_string, ',') ) {
 			$array_or_string = explode(',', $array_or_string);
+			$array_or_string = array_map('trim', $array_or_string);
 		} elseif ( is_numeric($array_or_string) || is_string($array_or_string) ) {
-			$array_or_string = array($array_or_string);
+			$array_or_string = array(trim($array_or_string));
 		} elseif ( is_array($array_or_string) ) {
 			// nuttin'
 		} else {
@@ -210,23 +211,17 @@ Class QQuery {
 	// 	return $this;
 	// }
 
-	// /** POST TYPE
-	// post_type (string / array) - use post types. Retrieves posts by Post Types, default value is 'post'. If 'tax_query' is set for a query, the default value becomes 'any';
-	// 	'post' - a post.
-	// 	'page' - a page.
-	// 	'revision' - a revision.
-	// 	'attachment' - an attachment. The default WP_Query sets 'post_status'=>'publish', but attachments default to 'post_status'=>'inherit' so you'll need to explicitly set post_status to 'inherit' or 'any' as well. (See post_status, below)
-	// 	'any' - retrieves any type except revisions and types with 'exclude_from_search' set to true.
-	// 	Custom Post Types (e.g. movies)
-	// */
-	// public function type( $post_type ) {
-	// 	if (is_string($post_type) && strpos($post_type, ',')){
-	// 		$post_type = explode(',', $post_type);
-	// 		$post_type = array_map('trim', $post_type);
-	// 	}
-	// 	$this->query_assoc['post_type'] = $post_type;
-	// 	return $this;
-	// }
+	/**
+	 * type() specifies the type(s) of posts you'd like to query for
+	 * @param  string|array $post_type accepts a comma-delimited string, a string, or an array of
+	 *                                 post_types. default: 'any'
+	 * @return current QQuery instance
+	 */
+	public function type( $post_type ) {
+		$this->to_array( $post_type );
+		$this->query_assoc['post_type'] = $post_type;
+		return $this;
+	}
 
 	// /**
 	//  * slug(string) -
