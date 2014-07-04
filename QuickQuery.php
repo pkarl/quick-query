@@ -457,6 +457,19 @@ Class QQuery {
 	// 	return $posts;
 	// }
 
+	// public function parent($parent_id){
+	// 	$this->query_assoc['post_parent'] = $parent_id;
+	// 	return $this;
+	// }
+
+	// public function children($type='any') {
+	// 	$this->child_type = $type;
+	// 	$this->meta_fields[] = 'children';
+	// 	return $this;
+	// }
+
+	/** PRIVATE */
+
 	/**
 	 * acf_filter fetches all of the ACF data for a given post
 	 *
@@ -478,30 +491,14 @@ Class QQuery {
 		return $posts;
 	}
 
-	// public function parent($parent_id){
-	// 	$this->query_assoc['post_parent'] = $parent_id;
-	// 	return $this;
-	// }
-
-	public function reset() {
+	/**
+	 * rest the default values for this instance of QQ
+	 */
+	private function reset() {
 		wp_reset_query();
 		$this->query_assoc = $this->default_assoc;
 		// $this->meta_fields = array();
 	}
-
-	// public function children($type='any') {
-	// 	$this->child_type = $type;
-	// 	$this->meta_fields[] = 'children';
-	// 	return $this;
-	// }
-
-	// public function get_data_for_term($tag_slug) {
-	// 	global $wpdb;
-
-	// 	$query = 'SELECT wp_terms.term_id, wp_terms.name, wp_terms.slug, taxonomy FROM wp_terms LEFT JOIN wp_term_taxonomy ON wp_terms.`term_id` = wp_term_taxonomy.term_id WHERE wp_terms.`slug` = "' . $tag_slug . '"';
-
-	// 	return $wpdb->get_results( $query, OBJECT );
-	// }
 
 	// /** RUN THE QUERY */
 
