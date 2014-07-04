@@ -58,12 +58,12 @@ Class QQuery {
 		} elseif ( is_array($array_or_string) ) {
 			// nuttin'
 		} else {
-			QQ_Util::warn('ARR_CONVERSION');
+			QQ_Utils::warn('ARR_CONVERSION');
 			return;
 		}
 
  		if( count($array_or_string) === 0 ) {
- 			QQ_Util::warn('EMPTY_ARR');
+ 			QQ_Utils::warn('EMPTY_ARR');
  		}
 
 	}
@@ -85,12 +85,16 @@ Class QQuery {
 		// get_post will only return a WP_Post object OR null
 		$post = get_post( $post_id );
 
+		print_r($post);
+
 		if(! ($post instanceof WP_Post)) {
-			QQ_Util::warn('NON_OBJECT_RETURNED');
+			QQ_Utils::warn('NON_OBJECT_RETURNED');
 			return false;
 		}
 
-		$posts = $this->acf_filter( [$post] );
+		if( class_exists('acf') ) {
+			$posts = QQuery::acf_filter( [$post] );
+		}
 		// $posts = $this->meta_filter( [$post] );
 		// $posts = apply_filters('wp_ups_query_go_posts', $posts);
 
@@ -112,7 +116,7 @@ Class QQuery {
 	public function id( $ids ) {
 
 		if(!$ids) {
-			$this->warn('EMPTY_SET');
+			QQ_Utils::warn('EMPTY_SET');
 		}
 
 		$this->to_array( $ids );
@@ -183,7 +187,7 @@ Class QQuery {
 	 */
 	public function ppp( $posts_per_page ) {
 		if($posts_per_page == 0) {
-			QQ_Util::warn('EMPTY_SET');
+			QQ_Utils::warn('EMPTY_SET');
 		}
 		$this->query_assoc['posts_per_page'] = $posts_per_page;
 		return $this;
@@ -476,7 +480,7 @@ Class QQuery {
 	 * @param  array $posts one or more WP_Post objects
 	 * @return array        [description]
 	 */
-	private function acf_filter( $posts ) {
+	private static function acf_filter( $posts ) {
 
 		foreach($posts as $post) {
 			$fields = get_fields($post->ID);
