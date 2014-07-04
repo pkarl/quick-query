@@ -13,34 +13,7 @@ Get posts and data sanely with Quick Query.
 
 Quick Query is a snappy interface for WP_Query that makes querying with WordPress straightforward and concise. It's built on top of WP_Query (with a few exceptions), and provides a much more flexible and accomodating interface for querying posts.
 
-Here's an example:
-
-```
-// The WP_Query way
-$args = array(
-	'post_type' => 'post',
-	'tax_query' => array(
-		'relation' => 'AND',
-		array(
-			'taxonomy' => 'movie_genre',
-			'field' => 'slug',
-			'terms' => array( 'action', 'comedy' )
-		),
-		array(
-			'taxonomy' => 'actor',
-			'field' => 'id',
-			'terms' => array( 103, 115, 206 ),
-			'operator' => 'NOT IN'
-		)
-	)
-);
-$query = new WP_Query( $args );
-
-// The Quick Query way
-$posts = $q->type('post')->tags( ['movie_genre' => ['action','comedy'], 'actor' => [103, 115, 206]], 'AND' );
-```
-
-Learn more about Quick Query [here](https://github.com/pkarl/quick-query)
+Learn more about Quick Query and see code examples [here](https://github.com/pkarl/quick-query).
 
 == Installation ==
 
