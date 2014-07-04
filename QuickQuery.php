@@ -93,7 +93,7 @@ Class QQuery {
 		}
 
 		if( class_exists('acf') ) {
-			$posts = QQuery::acf_filter( [$post] );
+			$posts = QQ_Utils::acf_filter( [$post] );
 		}
 		// $posts = $this->meta_filter( [$post] );
 		// $posts = apply_filters('wp_ups_query_go_posts', $posts);
