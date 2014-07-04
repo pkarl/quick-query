@@ -9,6 +9,8 @@ Author URI: https://github.com/pkarl/quick-query
 License: MIT
 */
 
+require_once('QQ.Utils.php');
+
 Class QQuery {
 
 	/** we may need a set of proxy vars in case a user runs
@@ -38,22 +40,7 @@ Class QQuery {
 		}
 	}
 
-	/**
-	 * qq_warn is an interface to PHP's trigger_error function; it will be used to
-	 * provide users will debugging information about how QQ is functioning
-	 *
-	 * @param  string $warning_code a string index that corresponds to warning messages
-	 *                              in $qq_warnings
-	 */
-	private static function warn( $warning_code ) {
-		$qq_warnings = array(
-			'EMPTY_SET' => 'QQuery has received data that will return an empty set',
-			'ARR_CONVERSION' => 'QQuery is attempting to convert an unusual object to an array',
-			'EMPTY_ARR' => 'QQuery has found or generated an empty array'
-		);
 
-		trigger_error( $qq_warnings[$warning_code], E_USER_WARNING);
-	}
 
 	/**
 	 * to_array accepts a reference to an array or string and converts to an array (or does nothing). This
@@ -71,12 +58,12 @@ Class QQuery {
 		} elseif ( is_array($array_or_string) ) {
 			// nuttin'
 		} else {
-			$this->warn('ARR_CONVERSION');
+			QQ_Util::warn('ARR_CONVERSION');
 			return;
 		}
 
  		if( count($array_or_string) === 0 ) {
- 			$this->warn('EMPTY_ARR');
+ 			QQ_Util::warn('EMPTY_ARR');
  		}
 
 	}
@@ -99,13 +86,15 @@ Class QQuery {
 		$post = get_post( $post_id );
 
 		if(! ($post instanceof WP_Post)) {
-			return false; // how should we handle 'no records found'? throw a warning? - pk
+			QQ_Util::warn('NON_OBJECT_RETURNED');
+			return false;
 		}
 
-		// $posts = $this->acf_filter( [$post] );
+		$posts = $this->acf_filter( [$post] );
 		// $posts = $this->meta_filter( [$post] );
 		// $posts = apply_filters('wp_ups_query_go_posts', $posts);
-		// $post = $posts[0];
+
+		$post = $posts[0];
 
 		// $this->comments_params['post_id'] = $post->ID;
 		// $post->comments = get_comments( $this->comments_params );
@@ -194,7 +183,7 @@ Class QQuery {
 	 */
 	public function ppp( $posts_per_page ) {
 		if($posts_per_page == 0) {
-			$this->warn('EMPTY_SET');
+			QQ_Util::warn('EMPTY_SET');
 		}
 		$this->query_assoc['posts_per_page'] = $posts_per_page;
 		return $this;
