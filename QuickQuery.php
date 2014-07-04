@@ -28,9 +28,14 @@ Class QQuery {
 	// private $comments_params = array(
 	// 		'status' => 'approve',
 	// 	);
+	public $uses_acf = false;
 
 	public function __construct() {
 		$this->reset();
+
+		if( class_exists('acf') ) {
+			$this->uses_acf = true;
+		}
 	}
 
 	/**
@@ -463,24 +468,26 @@ Class QQuery {
 	// 	return $posts;
 	// }
 
-	// private function acf_filter( $posts ) {
-	// 	// run this before returning...
+	/**
+	 * acf_filter fetches all of the ACF data for a given post
+	 *
+	 * @param  array $posts one or more WP_Post objects
+	 * @return array        [description]
+	 */
+	private function acf_filter( $posts ) {
 
-	// 	foreach($posts as $post) {
-	// 		$fields = get_fields($post->ID);
-	// 		$tmp = new stdClass();
-	// 		foreach($fields as $field_name=>$field_value) {
-	// 			$property_name = $field_name;
-	// 			$field_value = apply_filters('wp_ups_query_acf_value', $field_value);
-	// 			// xdebug_break();
-	// 			$tmp->$property_name = $field_value;
+		foreach($posts as $post) {
+			$fields = get_fields($post->ID);
+			$tmp = new stdClass();
+			foreach($fields as $field_name=>$field_value) {
+				$property_name = $field_name;
+				$tmp->$property_name = $field_value;
+			}
+			$post->acf = $tmp;
+		}
 
-	// 		}
-	// 		$post->acf = $tmp;
-	// 	}
-
-	// 	return $posts;
-	// }
+		return $posts;
+	}
 
 	// public function parent($parent_id){
 	// 	$this->query_assoc['post_parent'] = $parent_id;
@@ -512,7 +519,11 @@ Class QQuery {
 	public function go() {
 
 		$query = new WP_Query($this->query_assoc);
-		// $posts = $this->acf_filter($query->posts);
+		if($this->uses_acf) {
+			$posts = $this->acf_filter($query->posts);
+		} else {
+			$posts = $query->posts;
+		}
 		// $posts = $this->meta_filter($posts);
 		// $posts = apply_filters('wp_ups_query_go_posts', $posts);
 
@@ -525,7 +536,7 @@ Class QQuery {
 		// print_r($query->request . "\n\n");
 
 		$this->reset();
-		return $query->posts;
+		return $posts;
 	}
 
 }
