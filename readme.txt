@@ -15,6 +15,10 @@ Quick Query is a snappy interface for WP_Query that makes querying with WordPres
 
 Learn more about Quick Query and see code examples [here](https://github.com/pkarl/quick-query).
 
+## Quick Query is under heavy development!
+
+I'm writing code + testing as fast as I can to get us to a good minimum set of functionality.
+
 (photo [credit](https://www.flickr.com/photos/seeminglee/4556156477))
 
 == Installation ==
@@ -30,6 +34,10 @@ We're working on getting this up into composer registries and what not. For now 
 Besides adding interfaces for the most common querying tasks (posts, tags, authors, sorting, etc.), I'd like to build in sensitivity to ACF fields/data and possibly a caching interface.
 
 Before that can happen, there are lots of tests to be written and plenty of design decisions to be made (and, of course, documentation!).
+
+== Who's this for? ==
+
+This is certainly geared more toward developers than designers and hobbyists. That said, It does return WP_Post objects, so all/most of the functionality you're used to may be there.
 
 == Changelog ==
 
