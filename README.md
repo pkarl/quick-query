@@ -43,20 +43,39 @@ I'll be working on this (along with anyone who enjoys the idea of mitigating the
 
 # TODO
 
-- [x] Post Type (`$qq->type('some-type')`)
-- [x] Fetch Post by ID (`$qq->get(42)`)
+- [x] Post Type
+ * `$qq->type('some-type')`
+- [x] Fetch Post by ID
+ * `$qq->get(42)`
 - [x] ACF sensory
-- [x] Fetch Post in set of IDs (`$qq->in([2, 5, 42])`)
-- [x] Sort order (`$qq->sort('date', 'DESC')`)
+- [x] Fetch Post in set of IDs
+ * `$qq->in([2, 5, 42])`
+- [x] Sort order
+ * `$qq->sort('date', 'DESC')`
 - [x] Exclude ID(s)
-- [x] Return all posts (`$qq->all()`)
-- [x] Set posts per page (`$qq->ppp(20)`)
-- [ ] Meta Fields options (`$qq->meta('author')`)
-- [ ] Pagination & Offset (`$qq->ppp(3)->page(2)`)
-- [ ] Filter by post status (`$qq->status('published')` or `$qq->status(['published','draft'])`)
-- [ ] Terms, Taxonomies & Categories (`$qq->term('cats')`, `$qq->tax('animals')`, `$qq->tax(['animals'=>['cats', 'dogs'], ['pizza'=>['deep', 'NYC']], 'OR')`, `$qq->category('fish')`)
-- [ ] Authors (`$qq->author(1)`, `$qq->author('Pete Karl II')`)
-- [ ] Parents & Children (`$qq->parent(22)`, `$qq->parent('some-slug')`, `$qq->children('some_post_type')`)
+- [x] Return all posts
+ * `$qq->all()`
+- [x] Set posts per page
+ * `$qq->ppp(20)`
+- [ ] Meta Fields options
+ * `$qq->meta('author')`
+- [ ] Pagination & Offset
+ * `$qq->ppp(3)->page(2)`
+- [ ] Filter by post status
+ * `$qq->status('published')`
+ * `$qq->status(['published','draft'])`
+- [ ] Terms, Taxonomies & Categories
+ * `$qq->term('cats')`
+ * `$qq->tax('animals')`
+ * `$qq->tax(['animals'=>['cats', 'dogs'], ['pizza'=>['deep', 'NYC']], 'OR')`
+ * `$qq->category('fish')`
+- [ ] Authors
+ * `$qq->author(1)`
+ * `$qq->author('Pete Karl II')`
+- [ ] Parents & Children
+ * `$qq->parent(22)`
+ * `$qq->parent('some-slug')`
+ * `$qq->children('some_post_type')`
 
 ## Needs Tests
 
