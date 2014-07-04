@@ -15,6 +15,8 @@ Quick Query is a snappy interface for WP_Query that makes querying with WordPres
 
 Learn more about Quick Query and see code examples [here](https://github.com/pkarl/quick-query).
 
+(photo [credit](https://www.flickr.com/photos/seeminglee/4556156477))
+
 == Installation ==
 
 We're working on getting this up into composer registries and what not. For now you can follow this simple process:
