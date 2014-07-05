@@ -85,20 +85,16 @@ Class QQuery {
 		// get_post will only return a WP_Post object OR null
 		$post = get_post( $post_id );
 
-		print_r($post);
-
 		if(! ($post instanceof WP_Post)) {
-			QQ_Utils::warn('NON_OBJECT_RETURNED');
 			return false;
 		}
 
 		if( class_exists('acf') ) {
-			$posts = QQ_Utils::acf_filter( [$post] );
+			$posts = QQuery::acf_filter( [$post] );
+			$post = $posts[0];
 		}
 		// $posts = $this->meta_filter( [$post] );
 		// $posts = apply_filters('wp_ups_query_go_posts', $posts);
-
-		$post = $posts[0];
 
 		// $this->comments_params['post_id'] = $post->ID;
 		// $post->comments = get_comments( $this->comments_params );
