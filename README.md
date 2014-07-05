@@ -1,4 +1,4 @@
-# Quick Query
+# Quick Query (alpha)
 
 [![Build Status](https://travis-ci.org/pkarl/quick-query.svg?branch=master)](https://travis-ci.org/pkarl/quick-query)
 
