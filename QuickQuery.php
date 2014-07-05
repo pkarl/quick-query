@@ -85,12 +85,12 @@ Class QQuery {
 		// get_post will only return a WP_Post object OR null
 		$post = get_post( $post_id );
 
-		if(! ($post instanceof WP_Post)) {
+		if(! ($post instanceof WP_Post) ) {
 			return false;
 		}
 
 		if( class_exists('acf') ) {
-			$posts = QQuery::acf_filter( [$post] );
+			$posts = QQuery::acf_filter( array($post) );
 			$post = $posts[0];
 		}
 		// $posts = $this->meta_filter( [$post] );
