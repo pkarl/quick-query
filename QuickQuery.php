@@ -173,6 +173,7 @@ Class QQuery {
 	 * @return current QQuery instance
 	 */
 	public function all() {
+		$this->query_assoc['nopaging'] = true;
 		return $this->ppp(-1);
 	}
 
@@ -189,21 +190,31 @@ Class QQuery {
 		return $this;
 	}
 
-	// public function page($page_number) { // which page are we on..?
-	// 	if(isset($this->query_assoc['offset'])){
-	// 		trigger_error('UPS-Query: using `offset` with `paged` may produce unintended results', E_WARNING);
-	// 	}
-	// 	$this->query_assoc['paged'] = $page_number;
-	// 	return $this;
-	// }
+	/**
+	 * page returns a subset of selected posts based on posts-per-page and the page number
+	 * @param  int $page_number number of posts to return per page
+	 * @return current QQuery instance
+	 */
+	public function page($page_number) { // which page are we on..?
+		if(isset($this->query_assoc['offset'])){
+			QQ_Utils::warn('PAGING_AND_OFFSET_CONFLICT');
+		}
+		$this->query_assoc['paged'] = $page_number;
+		return $this;
+	}
 
-	// public function offset( $offset ) {
-	// 	if(isset($this->query_assoc['paged'])){
-	// 		trigger_error('UPS-Query: using `offset` with `paged` may produce unintended results', E_WARNING);
-	// 	}
-	// 	$this->query_assoc['offset'] = $offset;
-	// 	return $this;
-	// }
+	/**
+	 * offsets set of returned posts by this number. Given [1,2,3,4,5,6], ppp = 3, an offset of 1 would return [2,3,4]
+	 * @param  int $offset number by which to offset the posts
+	 * @return current QQuery instance
+	 */
+	public function offset( $offset ) {
+		if(isset($this->query_assoc['page'])){
+			QQ_Utils::warn('PAGING_AND_OFFSET_CONFLICT');
+		}
+		$this->query_assoc['offset'] = $offset;
+		return $this;
+	}
 
 	/**
 	 * type() specifies the type(s) of posts you'd like to query for
@@ -518,6 +529,8 @@ Class QQuery {
 		// 	// $post->comments = get_comments( $post->ID );
 		// 	return $post;
 		// }
+
+		// print_r($query);
 
 		// print_r($query->request . "\n\n");
 
