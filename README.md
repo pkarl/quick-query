@@ -59,7 +59,7 @@ I'll be working on this (along with anyone who enjoys the idea of mitigating the
  * `$qq->ppp(20)`
 - [ ] Meta Fields options
  * `$qq->meta('author')`
-- [ ] Pagination & Offset
+- [x] Pagination & Offset
  * `$qq->ppp(3)->page(2)`
 - [ ] Filter by post status
  * `$qq->status('published')`
