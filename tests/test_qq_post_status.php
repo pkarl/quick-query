@@ -33,11 +33,6 @@ class WP_QQ_POST_STATUS extends WP_UnitTestCase {
 		$private_and_pending_posts =
 							$qq->status( [$test_post_status_2, $test_post_status_1] )->all()->go();
 
-		print_r( count($all_posts) . "\n");
-		print_r( count($draft_posts) . "\n");
-		print_r( count($pending_posts) . "\n");
-		print_r( count($private_and_pending_posts) . "\n");
-
 		$this->assertEquals( count($all_posts), $total_post_count);
 		$this->assertEquals( count($draft_posts), $draft_post_count);
 		$this->assertEquals( count($pending_posts), $pending_post_count);
