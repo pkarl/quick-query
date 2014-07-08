@@ -25,7 +25,7 @@ Class QQuery {
 		'post_status' => 'publish'
 	);
 
-	// private $meta_fields = array();
+	private $meta_fields = array();
 
 	// private $comments_params = array(
 	// 		'status' => 'approve',
@@ -60,9 +60,9 @@ Class QQuery {
 			return;
 		}
 
- 		if( count($array_or_string) === 0 ) {
- 			QQ_Utils::warn('EMPTY_ARR');
- 		}
+		if( count($array_or_string) === 0 ) {
+			QQ_Utils::warn('EMPTY_ARR');
+		}
 
 	}
 
@@ -91,6 +91,7 @@ Class QQuery {
 			$posts = QQuery::acf_filter( [$post] );
 			$post = $posts[0];
 		}
+
 		// $posts = $this->meta_filter( [$post] );
 		// $posts = apply_filters('wp_ups_query_go_posts', $posts);
 
@@ -366,25 +367,18 @@ Class QQuery {
 	// 	return $this;
 	// }
 
-	// /**
-	//  * EXTENDED DATA
-	//  */
-	// public function include_meta($meta_fields) {
+	/**
+	 * extend accepts a string or array of metadata properties to fetch additional data for
+	 * @param  string|array $meta_fields
+	 * @return current QQuery instance
+	 */
+	public function extend($meta_fields) {
 
-	// 	if(!is_array($meta_fields)) {
+		$this->to_array($meta_fields);
+		$this->meta_fields = array_merge($this->meta_fields, $meta_fields);
 
-	// 		if(strpos($meta_fields, ',') !== false) {
-	// 			$meta_fields = explode($meta_fields, ',');
-	// 		} else {
-	// 			$meta_fields = [$meta_fields];
-	// 		}
-
-	// 	}
-
-	// 	$this->meta_fields = array_merge($this->meta_fields, $meta_fields);
-
-	// 	return $this;
-	// }
+		return $this;
+	}
 
 	// /**
 	//  * META FILTRATION
@@ -395,8 +389,13 @@ Class QQuery {
 	//  * 	thumbnail - fetches thumbnail data per post
 	//  */
 
-	// private function meta_filter($posts) {
-	// 	global $wpdb;
+	/**
+	 * meta_filter is used by QQuery to fetch data as id'd by the extend() method
+	 * @param  array[WP_Post] $posts array of WP_Posts to extend based on contents of meta_fields arr
+	 * @return array        		 modified array of WP_Post objects
+	 */
+	private function meta_filter($posts) {
+		global $wpdb;
 
 	// 	if(in_array('author', $this->meta_fields)) {
 
@@ -457,19 +456,29 @@ Class QQuery {
 	// 		};
 	// 	}
 
-	// 	if (in_array('terms', $this->meta_fields)){
-	// 		foreach($posts as $post){
-	// 			$taxs = get_object_taxonomies($post->post_type);
-	// 			$terms = array();
-	// 			foreach ($taxs as $tax) {
-	// 				$terms[] = wp_get_post_terms($post->ID, $tax);
-	// 			}
-	// 			$post->terms = $terms;
-	// 		}
-	// 	}
+		if (in_array('terms', $this->meta_fields)){
+			foreach($posts as $post){
+				$taxs = get_object_taxonomies($post->post_type);
+				$terms = array();
+				foreach ($taxs as $tax) {
+					$terms[] = wp_get_post_terms($post->ID, $tax);
+				}
+				$post->terms = $terms;
+			}
+		}
 
-	// 	return $posts;
-	// }
+		foreach(['terms'] as $value) {
+			if(($key = array_search($value, $this->meta_fields)) !== false) {
+			    unset($this->meta_fields[$key]);
+			}
+		}
+
+		if(count($this->meta_fields) > 0) {
+			QQ_Utils::warn('META_NOT_FOUND');
+		}
+
+		return $posts;
+	}
 
 	// public function parent($parent_id){
 	// 	$this->query_assoc['post_parent'] = $parent_id;
@@ -488,7 +497,7 @@ Class QQuery {
 	 * acf_filter fetches all of the ACF data for a given post
 	 *
 	 * @param  array $posts one or more WP_Post objects
-	 * @return array        [description]
+	 * @return array        same set of WP_Post objects, but extended with ACF data (if any)
 	 */
 	private static function acf_filter( $posts ) {
 
@@ -511,7 +520,7 @@ Class QQuery {
 	private function reset() {
 		wp_reset_query();
 		$this->query_assoc = $this->default_assoc;
-		// $this->meta_fields = array();
+		$this->meta_fields = array();
 	}
 
 	// /** RUN THE QUERY */
@@ -524,7 +533,7 @@ Class QQuery {
 		} else {
 			$posts = $query->posts;
 		}
-		// $posts = $this->meta_filter($posts);
+		$posts = $this->meta_filter($posts);
 		// $posts = apply_filters('wp_ups_query_go_posts', $posts);
 
 		// if(count($posts) == 1) {
@@ -535,7 +544,7 @@ Class QQuery {
 
 		// print_r($query);
 
-		// print_r($query->request . "\n\n");
+		print_r($query->request . "\n\n");
 
 		$this->reset();
 		return $posts;

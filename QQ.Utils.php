@@ -15,7 +15,8 @@ Class QQ_Utils {
 			'ARR_CONVERSION' => 'QQuery is attempting to convert an unusual object to an array',
 			'EMPTY_ARR' => 'QQuery has found or generated an empty array',
 			'NON_OBJECT_RETURNED' => 'WP_Post has been requested, but WP did not return one',
-			'PAGING_AND_OFFSET_CONFLICT' => 'Using page and offset properties may product unintended results.'
+			'PAGING_AND_OFFSET_CONFLICT' => 'Using page and offset properties may product unintended results.',
+			'META_NOT_FOUND' => 'One of the values you provided to extend() is not supported.'
 		);
 
 		trigger_error( $qq_warnings[$warning_code], E_USER_WARNING);
