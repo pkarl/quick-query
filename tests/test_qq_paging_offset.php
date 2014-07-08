@@ -49,12 +49,3 @@ class WP_QQ_PAGING extends WP_UnitTestCase {
 		$this->assertEquals( array_map("get_ID", $offset_qq_posts), array_map("get_ID", $wp_offset_posts) );
 	}
 }
-
-/**
- * a wild method appears!
- * @param  WP_POST 	$post
- * @return int 		The post ID
- */
-function get_ID($post) {
-	return $post->ID;
-}

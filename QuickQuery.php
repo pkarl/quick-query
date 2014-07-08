@@ -40,8 +40,6 @@ Class QQuery {
 		}
 	}
 
-
-
 	/**
 	 * to_array accepts a reference to an array or string and converts to an array (or does nothing). This
 	 * exists because it's a slice of logic that happens all the dang time.
@@ -237,10 +235,15 @@ Class QQuery {
 	// 	return $this;
 	// }
 
-	// public function status($status) {
-	// 	$this->query_assoc['post_status'] = $status;
-	// 	return $this;
-	// }
+	/**
+	 * limit post selection to post status
+	 * @param  string|array $status a string or array of post statuses
+	 * @return current QQuery instance
+	 */
+	public function status($status) {
+		$this->query_assoc['post_status'] = $status;
+		return $this;
+	}
 
 	// /** CATEGORIES
 

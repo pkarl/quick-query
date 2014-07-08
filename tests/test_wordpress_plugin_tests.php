@@ -26,3 +26,12 @@ class WP_Test_WordPress_Plugin_Tests extends WP_UnitTestCase {
 	}
 
 }
+
+/**
+ * a wild method appears!
+ * @param  WP_POST 	$post
+ * @return int 		The post ID
+ */
+function get_ID($post) {
+	return $post->ID;
+}
