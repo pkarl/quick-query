@@ -61,7 +61,7 @@ I'll be working on this (along with anyone who enjoys the idea of mitigating the
  * `$qq->meta('author')`
 - [x] Pagination & Offset
  * `$qq->ppp(3)->page(2)`
-- [ ] Filter by post status
+- [x] Filter by post status
  * `$qq->status('published')`
  * `$qq->status(['published','draft'])`
 - [ ] Terms, Taxonomies & Categories
