@@ -4,7 +4,18 @@
 
 Quick Query is an interface for fetching data from WordPress that's intuitive and pleasant to use. It uses a jQuery-like syntax to chain together simple pieces of information and get you the right information in return.
 
-## How it works
+### Project Update 8-15-2014
+
+Here are a few nuggets:
+
+* As it happens, keeping the SVN version of this up to date on wordpress.org is a PITA, so until this gets to a real alpha, I'm not going to waste my energy there
+ * when that does happen, I'll make sure composer + wp.org both have access to QQ
+* all posts are retrieved by default. I think Wordpress's not-so-smart defaults are something developers should be explicit about, so warm up your `ppp()`
+* Tests are going very well, though I had a hell of a time with Wordpress + PHPUnit and that incomplete/horribly-documented factory class. I ended up creating objects for unit tests with a combination of factory stuff, built-in wordpress functions, and a smattering of wizardry
+* Tags, taxonomy, and the like are easily the most complicated part of this. I'm nearly done with a draft that accommodates most all kinds of tax_queries, but I need to test it in combination with other WP\_Query params and work on the `tax()` chaining interface
+* The authors, parents & children code should come very quickly after that
+
+## How it works & Background
 
 Quick Query began as a scrap of syntactic sugar for dealing with [WP_Query](http://codex.wordpress.org/Class_Reference/WP_Query). Over the course of a few projects, this sugary treat grew into necessity that simplified 80% of the time-consuming query code into a few pleasant lines.
 

@@ -13,10 +13,6 @@ require_once('QQ.Utils.php');
 
 Class QQuery {
 
-	/** we may need a set of proxy vars in case a user runs
-		->author('pete')->authors(['jared','mike']), so one
-		doesn't blow the other away */
-
 	// default WP_Query config
 	private $query_assoc = array();
 
@@ -26,14 +22,22 @@ Class QQuery {
 	);
 
 	private $meta_fields = array();
+	private $tax_query = array();
+
+
+	public $uses_acf = false;
 
 	// private $comments_params = array(
 	// 		'status' => 'approve',
 	// 	);
-	public $uses_acf = false;
 
+	/**
+	 * set up defaults and set up flags for ACF
+	 */
 	public function __construct() {
 		$this->reset();
+
+		$this->all();
 
 		if( class_exists('acf') ) {
 			$this->uses_acf = true;
@@ -255,18 +259,19 @@ Class QQuery {
 	// 	category__not_in (array) - use category id.
 	// */
 
-	// public function category( $id_or_name, $recursive = false ) {
-	// 	if(!is_numeric( $id_or_name )) {
-	// 		$cat_id = get_cat_ID( $id_or_name );
-	// 		$this->query_assoc['category_name'] = $id_or_name;
-	// 	}
-	// 	if($recursive) {
-	// 		return $cat_id;
-	// 	} else {
-	// 		$this->query_assoc['cat'] = $cat_id;
-	// 	}
-	// 	return $this;
-	// }
+	/**
+	 * interface for taxonomy queries that use the built-in 'categories' taxonomy
+	 * @param  string|int $cat_id an integer ID or string slug that represent a category
+	 * @return current QQuery instance
+	 */
+	public function category( $cat_id ) {
+
+		// if(is_numeric( $cat_id )) {
+		// 	$cat_id = get_term_by('id', $cat_id, 'category');
+		// }
+
+		return $this->tax( ['category'=>[$cat_id]] );
+	}
 
 	// public function categories( $arr_of_ids_or_names ) {
 	// 	$categories = [];
@@ -309,9 +314,6 @@ Class QQuery {
 	// 	return $this;
 	// }
 
-	// /**
-	//  * TAXONOMY
-	//  */
 	// public function taxonomy( $taxonomy_id_or_name ) {
 	// 	// assume just a taxonomy name for now
 	// 	$this->query_assoc['tax_query'] = array(
@@ -366,6 +368,189 @@ Class QQuery {
 	// 	$this->query_assoc['tax_query'] = $tax_query;
 	// 	return $this;
 	// }
+
+	// sets tax() relationship
+	public function _or() {
+		return $this;
+	}
+
+	// sets tax() relationship
+	public function _and() {
+		return $this;
+	}
+
+	/**
+	 * This is the most flexible means of interacting with WP_Query's tax_query attribute.
+	 * I think what I'm going to have folks do is call tax() once per query they'd like to make and
+	 * limit the arguments to one array of information.
+	 *
+	 * For example: $qq->tax(['pets'=>'kittens'])->_or()->tax('home_repair')->go();
+	 *
+	 * ...and not: $qq->tax(['some'=>['complicated', 'single'], 'argument'=>['in', 'this','space']], ['with'=>'options']);
+	 *
+	 * @param  string|array $t still in flux, may accept 'term_slug', ['term_slug'], [10,20,30],
+	 *                         '10,20,30', ['term_slug', 20, 30], ['tax_name'=>['term_slug']], etc.
+	 * @param  array $options  various tax_query overrides, not sure if this will stick around
+	 * @return current QQuery instance
+	 */
+	public function tax($t, $options=array()) {
+		global $wpdb;
+
+		// print_r("\n\nORIGINAL \$t -------------");
+		// print_r($t);
+
+		/* accepts:
+			- single term_id
+			- single term slug (term_name)
+			- array of term_ids (default relation: AND)
+			- array of term slugs (default relation: AND)
+			- nested array of [taxonomy=>terms()]
+			- nested array of [taxonomy=>terms(),taxonomy=>terms(),taxonomy=>terms(),...]
+			- any of these with an args relation of AND or OR
+			- and of these with an args incl_children of TRUE or FALSE
+
+			What's critical is that when we receive data, we should assume 'field'
+			is going to either be ID or slug, and not a mix
+
+			'relation' is only necessary if there's more than one taxonomy arr
+		*/
+
+		// seeing as how we're accepting mixed terms (like 'term', 3, '10')
+
+		// convert string $t to an array, explode if necessary
+		if (is_string($t)) {
+			if(strpos($t, ',')) {
+				$t = explode(',', $t);
+			} else {
+				$t = [$t];
+			}
+		} elseif (is_numeric($t)) {
+			$t = [$t];
+		}
+
+		// now we have ['some_slug'], or [10], or ['some_slug', 'list', 30]
+
+		// now convert contents of this array to slugs!
+		foreach($t as $key=>$token) {
+			if(is_array($token)) { // assume we have a ['tax'=>['terms']] relationship
+				// loop over terms to convert to slugs
+
+				// print_r("\$token\n");
+				// print_r($token);
+
+				foreach($token as $token_key=>$term) {
+					if(is_numeric($term)) {
+						$term = get_term_by('id', $term, $key);
+					} else {
+						$term = get_term_by('slug', $term, $key);
+					}
+					$t[$key][$token_key] = $term;
+				}
+
+			// otherwise, we don't know the taxonomy, so we have to get it...
+			} elseif(is_numeric($token)) {
+
+				$results = $wpdb->get_results("SELECT * FROM $wpdb->term_taxonomy AS wptt LEFT JOIN $wpdb->terms AS wpt ON wpt.term_id = wptt.term_id WHERE wpt.term_id = '" . $token . "'");
+
+				if(!empty($results)) {
+					$term = get_term_by('id', $token, $results[0]->taxonomy);
+					$t[$key] = $term;
+				} else {
+					// TODO: throw warning, eh?
+					QQ_Utils::warn('TERM_NOT_FOUND');
+					unset($t[$key]); // remove the erroneous original value
+				}
+
+			} elseif(is_string($token)) {
+
+				$results = $wpdb->get_results("SELECT * FROM $wpdb->term_taxonomy AS wptt LEFT JOIN $wpdb->terms AS wpt ON wpt.term_id = wptt.term_id WHERE slug = '" . $token . "'");
+
+				// assume one instance of each term FOR NOW
+				// print_r("RESULTS\n");
+				// print_r($results[0]);
+
+				$term = $results[0];
+
+				$term = get_term_by('slug', $term->slug, $term->taxonomy);
+
+				$t[$key] = $term;
+
+			}
+		}
+
+		// print_r("\$t\n");
+		// print_r($t);
+
+		// if 1D arr
+			// if single term slug, get ID for term
+			// get tax for each term...
+			// convert terms into tax=>term format
+
+		// $defaults = array(
+		// 	'relation'=>'AND',
+		// 	'include_children'=>true
+		// );
+
+		// if(!empty($this->tax_query)) {
+		// 	$this->tax_query = [];
+		// } else {
+
+		// }
+
+		$query = [];
+
+		foreach($t as $index=>$term) {
+
+			if(is_numeric($index) && is_array($term) || is_object($term)) {
+
+				// print_r("\n\$foreach T as TERM, NUMERIC || OBJECT\n");
+				// print_r($term);
+
+				$query[] = [
+					'taxonomy' 	=> $term->taxonomy,
+					'terms' 	=> $term->slug,
+					'field' 	=> 'slug'
+				];
+
+			} elseif(is_array($term)) {
+
+				// print_r("\nTHE OBJECT:\n");
+				// print_r($term);
+				// print_r("\n\n");
+
+				foreach($term as $at) {
+					$query[] = [
+						'taxonomy' 	=> $at->taxonomy,
+						'terms' 	=> $at->slug,
+						'field' 	=> 'slug'
+					];
+				}
+
+			} else {
+				print_r("\n\$foreach T as TERM, ??????????????\n");
+				print_r($t);
+				print_r("\n\n");
+			}
+
+			// build query objects from each of these, combining terms where applicable
+		}
+
+		if(count($query) > 1) {
+			if(array_key_exists('relation', $options)) {
+				$query['relation'] = $options['relation'];
+			} else {
+				$query['relation'] = 'AND';
+			}
+		}
+
+		// ignore chained tax() for now
+		$this->query_assoc['tax_query'] = $query;
+
+		// print_r("\n\$query\n");
+		// print_r($query);
+
+		return $this;
+	}
 
 	/**
 	 * extend accepts a string or array of metadata properties to fetch additional data for
@@ -457,13 +642,27 @@ Class QQuery {
 	// 	}
 
 		if (in_array('terms', $this->meta_fields)){
+			$taxonomies = get_taxonomies();
+
+			// TODO: optimize this with one big query, maybe?
+			// 			WHERE post.ID in [some,post,ids]
+
 			foreach($posts as $post){
-				$taxs = get_object_taxonomies($post->post_type);
-				$terms = array();
-				foreach ($taxs as $tax) {
-					$terms[] = wp_get_post_terms($post->ID, $tax);
+
+				$query = "SELECT *
+							FROM $wpdb->term_relationships AS wptr
+							LEFT JOIN $wpdb->term_taxonomy AS wptt
+								ON wptr.term_taxonomy_id = wptt.term_taxonomy_id
+							LEFT JOIN $wpdb->terms AS wpt
+								ON wpt.term_id = wptt.term_id";
+
+				$terms = $wpdb->get_results($query);
+
+				if(!empty($terms)) {
+					$post->terms = $terms;
+				} else {
+					$post->terms = new stdClass();
 				}
-				$post->terms = $terms;
 			}
 		}
 
@@ -544,7 +743,9 @@ Class QQuery {
 
 		// print_r($query);
 
-		print_r($query->request . "\n\n");
+		print_r("\n\n" . $query->request . "\n\n");
+
+		print_r("\n\n" . count($posts) . " posts returned\n\n");
 
 		$this->reset();
 		return $posts;
