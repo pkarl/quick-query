@@ -7,7 +7,8 @@ require_once $_tests_dir . '/includes/functions.php';
 
 function _manually_load_plugin() {
 	require dirname( __FILE__ ) . '/../QuickQuery.php';
-	require dirname( __FILE__ ) . '/../vendor/AdvancedCustomFields/acf5-beta/acf/advanced-custom-fields-pro/acf.php';
+	// ACF left beta... but where did it go?
+	// require dirname( __FILE__ ) . '/../vendor/AdvancedCustomFields/acf5-beta/acf/advanced-custom-fields-pro/acf.php';
 }
 
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );

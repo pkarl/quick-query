@@ -189,6 +189,7 @@ Class QQuery {
 		if($posts_per_page == 0) {
 			QQ_Utils::warn('EMPTY_SET');
 		}
+		unset($this->query_assoc['nopaging']);
 		$this->query_assoc['posts_per_page'] = $posts_per_page;
 		return $this;
 	}
@@ -743,9 +744,9 @@ Class QQuery {
 
 		// print_r($query);
 
-		print_r("\n\n" . $query->request . "\n\n");
+		// print_r("\n\n" . $query->request . "\n\n");
 
-		print_r("\n\n" . count($posts) . " posts returned\n\n");
+		// print_r("\n\n" . count($posts) . " posts returned\n\n");
 
 		$this->reset();
 		return $posts;

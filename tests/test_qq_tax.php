@@ -18,7 +18,7 @@ class WP_QQ_TAXONOMY extends WP_UnitTestCase {
 		$qq = new QQuery();
 		$post = $qq->id($post_id)->extend('terms')->go();
 
-		var_dump($post);
+		// var_dump($post);
 
 		// $this->assertNotEmpty($post->terms);
 
