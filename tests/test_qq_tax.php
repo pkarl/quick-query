@@ -57,7 +57,7 @@ class WP_QQ_TAXONOMY extends WP_UnitTestCase {
 		$post_1 = $this->factory->post->create();
 		$post_2 = $this->factory->post->create();
 
-		register_taxonomy( 'test', 'post', [] );
+		register_taxonomy( 'test', 'post', array() );
 
 		wp_set_object_terms( $post_1, 'term-1', 'test' );
 		wp_set_object_terms( $post_1, 'term-2', 'test', true );
@@ -76,10 +76,10 @@ class WP_QQ_TAXONOMY extends WP_UnitTestCase {
 		$post_second = $qq->tax('term-3')->go(); // should only return the second
 		$this->assertEquals(1, count($post_second) );
 
-		$posts_none = $qq->tax(['term-2', 'term-3'])->go(); // should return none because default to AND
+		$posts_none = $qq->tax(array('term-2', 'term-3'))->go(); // should return none because default to AND
 		$this->assertEquals(0, count($posts_none) );
 
-		$posts_both_again = $qq->tax(['term-2', 'term-3'], ['relation'=>'OR'])->go(); // should return both because we set OR
+		$posts_both_again = $qq->tax(array('term-2', 'term-3'), array('relation'=>'OR'))->go(); // should return both because we set OR
 		$this->assertEquals(2, count($posts_both_again) );
 	}
 
