@@ -92,7 +92,7 @@ Class QQuery {
 		}
 
 		if( class_exists('acf') ) {
-			$posts = QQuery::acf_filter( [$post] );
+			$posts = QQuery::acf_filter( array($post) );
 			$post = $posts[0];
 		}
 
@@ -271,7 +271,7 @@ Class QQuery {
 		// 	$cat_id = get_term_by('id', $cat_id, 'category');
 		// }
 
-		return $this->tax( ['category'=>[$cat_id]] );
+		return $this->tax( array('category'=>array($cat_id)) );
 	}
 
 	// public function categories( $arr_of_ids_or_names ) {
@@ -423,10 +423,10 @@ Class QQuery {
 			if(strpos($t, ',')) {
 				$t = explode(',', $t);
 			} else {
-				$t = [$t];
+				$t = array($t);
 			}
 		} elseif (is_numeric($t)) {
-			$t = [$t];
+			$t = array($t);
 		}
 
 		// now we have ['some_slug'], or [10], or ['some_slug', 'list', 30]
@@ -498,7 +498,7 @@ Class QQuery {
 
 		// }
 
-		$query = [];
+		$query = array();
 
 		foreach($t as $index=>$term) {
 
@@ -507,11 +507,11 @@ Class QQuery {
 				// print_r("\n\$foreach T as TERM, NUMERIC || OBJECT\n");
 				// print_r($term);
 
-				$query[] = [
+				$query[] = array(
 					'taxonomy' 	=> $term->taxonomy,
 					'terms' 	=> $term->slug,
 					'field' 	=> 'slug'
-				];
+				);
 
 			} elseif(is_array($term)) {
 
@@ -520,11 +520,11 @@ Class QQuery {
 				// print_r("\n\n");
 
 				foreach($term as $at) {
-					$query[] = [
+					$query[] = array(
 						'taxonomy' 	=> $at->taxonomy,
 						'terms' 	=> $at->slug,
 						'field' 	=> 'slug'
-					];
+					);
 				}
 
 			} else {
