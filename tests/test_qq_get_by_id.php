@@ -41,7 +41,7 @@ class WP_QQ_Results extends WP_UnitTestCase {
 
 
 		// test if the get_post post and the qq_post are the same
-		$gotten_post = get_post( $post_id )
+		$gotten_post = get_post( $post_id );
 		$this->assertEquals( $gotten_post->ID, $qq_post->ID );
 
 		// make sure the qq_post is a WP_Post object
