@@ -667,7 +667,7 @@ Class QQuery {
 			}
 		}
 
-		foreach(['terms'] as $value) {
+		foreach(array('terms') as $value) {
 			if(($key = array_search($value, $this->meta_fields)) !== false) {
 			    unset($this->meta_fields[$key]);
 			}
